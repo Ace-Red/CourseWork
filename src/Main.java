@@ -5,5 +5,6 @@ public class Main {
         matrix.outMatrix();
         matrix.methodGaussJordan();
         matrix.outInverseMatrix();
+        matrix.checkInverseMatrix();
     }
 }

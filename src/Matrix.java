@@ -69,7 +69,24 @@ public class Matrix {
         System.out.println("Ваша обратная матрица:");
         for (int i = 0; i < size ; i++) {
             for (int j = 0; j < size; j++) {
-                System.out.printf(" %5.4f",inverseMatrix[i][j]);
+                System.out.printf(" %7.4f",inverseMatrix[i][j]);
+            }
+            System.out.println();
+        }
+    }
+    public void checkInverseMatrix(){
+        System.out.println("Проверка!Результат умножения обратной матрицы на начальную");
+        double[][] result = new double[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+                    result[i][j] += matrix[i][k] * inverseMatrix[k][j];
+                }
+            }
+        }
+        for (int i = 0; i < size ; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.printf(" %4.1f",Math.abs(result[i][j]));
             }
             System.out.println();
         }
