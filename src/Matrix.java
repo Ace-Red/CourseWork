@@ -117,9 +117,15 @@ public class Matrix {
         double E = 0.01;
         double norma=0;
         int k = 0;
-        double[][]fMatrix = new double[size][size];
-
-
+        double[][]fMatrix = fillMatrix();
+        while (Math.abs(searchDeterm(fMatrix))>E){
+            fMatrix = diffMatrix(Im,matrixMultiplication(matrixA,U));
+            if(Math.abs(searchDeterm(fMatrix))<E){
+                break;
+            }
+            U = matrixMultiplication(U,sumMatrix(Im,fMatrix));
+            k++;
+        }
 
     }
 
@@ -192,6 +198,36 @@ public class Matrix {
             unitMatrix[i][i] = 1;
         }
         return unitMatrix;
+    }
+    //Заполнение матрицы 1
+    private double[][] fillMatrix(){
+        double[][] matrix = new double[size][size];
+        for (int i = 0; i <size ; i++) {
+            for (int j = 0; j <size ; j++) {
+                matrix[i][j]=1.0;
+            }
+        }
+        return matrix;
+    }
+    //Разница 2 матриц
+    private double[][] diffMatrix(double[][] matrix1,double[][] matrix2){
+        double[][]result = new double[size][size];
+        for (int i = 0; i <size ; i++) {
+            for (int j = 0; j <size ; j++) {
+                result[i][j] = matrix1[i][j] - matrix2[i][j];
+            }
+        }
+        return result;
+    }
+    //Сумма 2 матриц
+    private double[][] sumMatrix(double[][] matrix1,double[][] matrix2){
+        double[][]result = new double[size][size];
+        for (int i = 0; i <size ; i++) {
+            for (int j = 0; j <size ; j++) {
+                result[i][j] = matrix1[i][j] + matrix2[i][j];
+            }
+        }
+        return result;
     }
 
 
