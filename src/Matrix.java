@@ -100,31 +100,37 @@ public class Matrix {
 
     //метод Шульца(иттерационный метод)
     public void methodIteration() {
+        //копирование матрицы глобально
         double[][] matrixA = new double[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 matrixA[i][j] = matrix[i][j];
             }
         }
+        //транспонировка матрицы
         double[][] matrixAT = transponirovkaMatrix(matrixA);
-        double deter = Math.abs(searchDeterm(matrixMultiplication(matrixA, matrixAT)));
-        if(deter==0){
-            System.out.println("Детерминант матрицы равен 0!");
-            System.exit(0);
-        }
-        double[][] U = multiplicationNumberOnMatrix(1 / deter, matrixAT);
-        double[][] Im = unitMatrix();
-        double E = 0.01;
-        double norma=0;
-        int k = 0;
-        double[][]fMatrix = fillMatrix();
-        while (Math.abs(searchDeterm(fMatrix))>E){
-            fMatrix = diffMatrix(Im,matrixMultiplication(matrixA,U));
-            if(Math.abs(searchDeterm(fMatrix))<E){
+        //поиск прібліженія
+        double[][] U0 = multiplicationNumberOnMatrix((1/searchKoef(matrixMultiplication(matrixA,matrixAT))),matrixAT);
+        //точность
+        double e = 0.01;
+        //матрица фи для проверки точности на каждой итерации
+        double[][] fi;
+        //точность матрицы фи
+        double norma = 1;
+        //эдиничная матрицы
+        double[][] im = unitMatrix();
+        while(norma>e){
+            fi = diffMatrix(im,matrixMultiplication(matrixA,U0));
+            norma = searchKoef(fi);
+            if(norma<=e){
                 break;
             }
-            U = matrixMultiplication(U,sumMatrix(Im,fMatrix));
-            k++;
+            U0 = matrixMultiplication(U0,sumMatrix(im,fi));
+        }
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                inverseMatrix[i][j] = U0[i][j];
+            }
         }
 
     }
@@ -152,35 +158,6 @@ public class Matrix {
         }
         return result;
     }
-
-    //Нахождение детерминанта
-    private double searchDeterm(double[][] matrix) {
-        int size = matrix.length;
-        if (size == 1) {
-            return matrix[0][0];
-        }
-        double determ = 0;
-        double[][] B = new double[size - 1][size - 1];
-        int l = 1;
-        for (int i = 0; i < size; ++i) {
-            int x = 0, y = 0;
-            for (int j = 1; j < size; ++j) {
-                for (int k = 0; k < size; ++k) {
-                    if (i == k) continue;
-                    B[x][y] = matrix[j][k];
-                    ++y;
-                    if (y == size - 1) {
-                        y = 0;
-                        ++x;
-                    }
-                }
-            }
-            determ += l * matrix[0][i] * searchDeterm(B);
-            l *= (-1);
-        }
-        return determ;
-    }
-
     //Умножение матрицы на число
     private double[][] multiplicationNumberOnMatrix(double numb, double[][] matrix) {
         for (int i = 0; i < matrix.length; i++) {
@@ -198,16 +175,6 @@ public class Matrix {
             unitMatrix[i][i] = 1;
         }
         return unitMatrix;
-    }
-    //Заполнение матрицы 1
-    private double[][] fillMatrix(){
-        double[][] matrix = new double[size][size];
-        for (int i = 0; i <size ; i++) {
-            for (int j = 0; j <size ; j++) {
-                matrix[i][j]=1.0;
-            }
-        }
-        return matrix;
     }
     //Разница 2 матриц
     private double[][] diffMatrix(double[][] matrix1,double[][] matrix2){
@@ -228,6 +195,16 @@ public class Matrix {
             }
         }
         return result;
+    }
+    //Нахождение коефициента для U0
+    private double searchKoef(double[][] matrix){
+        double res = 0;
+        for (int i = 0; i < size ; i++) {
+            for (int j = 0; j < size ; j++) {
+                res+=(matrix[i][j]*matrix[i][j]);
+            }
+        }
+        return Math.sqrt(res);
     }
 
 
