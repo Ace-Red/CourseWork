@@ -15,18 +15,16 @@ public class MatrixSpecialSizeFromKeyboard extends BorderPane {
         for (int i = 1; i <= 15; i++)
             row.getItems().add(i);
         row.setValue(5);
-        ComboBox<Integer> column = new ComboBox<>(row.getItems());
-        column.setValue(5);
-        comboBoxes.getChildren().addAll(new Label("Row: "), row, new Label("Column: "), column);
+        comboBoxes.getChildren().addAll(new Label("Row: "), row);
 
-        resetCenter(row, column);
+        resetCenter(row);
 
-        row.setOnAction(e -> resetCenter(row, column));
-        column.setOnAction(e -> resetCenter(row, column));
+        row.setOnAction(e -> resetCenter(row));
+
     }
 
-    private void resetCenter(ComboBox<Integer> row, ComboBox<Integer> column) {
-        setCenter(new MatrixFromKeyboard(row.getValue(), column.getValue()));
+    private void resetCenter(ComboBox<Integer> row) {
+        setCenter(new MatrixFromKeyboard(row.getValue()));
     }
 
     public int[][] getMatrix() {

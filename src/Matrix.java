@@ -1,3 +1,8 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
 public class Matrix {
     private int size;
     private int[][] matrix;
@@ -9,7 +14,6 @@ public class Matrix {
         matrix = new int[size][size];
         inverseMatrix = new double[size][size];
     }
-
     //Генерация матрицы
     public void generateRandomMatrix(int start, int finish) {
         for (int i = 0; i < size; i++) {
@@ -206,8 +210,67 @@ public class Matrix {
         }
         return Math.sqrt(res);
     }
+    //Создание начальной матрицы с файла
+    public Matrix(String fileName) {
+        File file = new File(fileName);
+        if (!file.exists())
+            System.out.println("Файл не найдет");
+        try (Scanner input = new Scanner(file)) {
+            this.size = Integer.parseInt(input.nextLine());
+            matrix = new int[size][size];
+            inverseMatrix = new double[size][size];
+            for (int i = 0; i < size; i++) {
+                String[] numbers = input.nextLine().split(" ");
+                for (int j = 0; j < size; j++) {
+                    matrix[i][j] = Integer.parseInt(numbers[j]);
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("Файл не найден!");
+        }
+    }
+    //Создание матрицы с чисел в ячейках
+    public Matrix(int[][]matrixEnter){
+        matrix = new int[matrixEnter.length][matrixEnter.length];
+        this.size = matrixEnter.length;
+        inverseMatrix = new double[size][size];
+        for (int i = 0; i < matrixEnter.length; i++) {
+            for (int j = 0; j < matrixEnter.length ; j++) {
+                matrix[i][j] = matrixEnter[i][j];
+            }
+        }
+    }
 
-
+    //Вывод в файл начальной матрицы
+    public void writeMatrix(String fileName){
+        File file = new File(fileName);
+        try (PrintWriter outPut = new PrintWriter(file)){
+            outPut.println("Ваша матрица:");
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    outPut.printf("%4d", matrix[i][j]);
+                }
+                outPut.println();
+            }
+        }catch (FileNotFoundException ex) {
+            System.out.println("Файл не найден");
+        }
+    }
+    //Вывод в файл конечной матрицы
+    public void writeInverseMatrix(String fileName){
+        File file = new File(fileName);
+        try (PrintWriter outPut = new PrintWriter(file)){
+            outPut.println("Ваша обратная матрица:");
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    outPut.printf(" %7.4f", inverseMatrix[i][j]);
+                }
+                outPut.println();
+            }
+        }catch (FileNotFoundException ex) {
+            System.out.println("Файл не найден");
+        }
+    }
     //Инкапсуляция
     public double[][] getInverseMatrix() {
         return inverseMatrix;

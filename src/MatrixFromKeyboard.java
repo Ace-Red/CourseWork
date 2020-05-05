@@ -5,7 +5,8 @@ public class MatrixFromKeyboard extends GridPane {
 
     private final TextField[][] textFields;
 
-    public MatrixFromKeyboard(int i, int j) {
+    public MatrixFromKeyboard(int i) {
+        int j = i;
         textFields = new TextField[i][j];
         for (int k = 0; k < i; k++) {
             for (int l = 0; l < j; l++) {

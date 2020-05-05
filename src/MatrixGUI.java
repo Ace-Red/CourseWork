@@ -15,14 +15,15 @@ import javafx.stage.Stage;
 import sun.jvm.hotspot.memory.Generation;
 
 import java.io.File;
-public class MatrixGUI extends Application{
+
+public class MatrixGUI extends Application {
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) {
         BorderPane pane = new BorderPane();
         pane.setPadding(new Insets(10, 10, 10, 10));
         ToggleGroup howToEnterMatrix = new ToggleGroup();
@@ -63,7 +64,6 @@ public class MatrixGUI extends Application{
         //Добавление в сцену ячеек для матрицы
         final KeyBoardMatrix keyboardMatrices = new KeyBoardMatrix();
         pane.setCenter(keyboardMatrices);
-
         final FilePane filePane = new FilePane();
         final GenerationPane generatorPane = new GenerationPane();
         //Сама сцена
@@ -71,15 +71,46 @@ public class MatrixGUI extends Application{
         primaryStage.setScene(scene);
         primaryStage.setTitle("Нахождение обратной матрицы");
         primaryStage.show();
-        //Функционал каждой кнопки
+        //Функционал кнопки выбора папки в который будет занесен результат
         chooseFolder.setOnMouseClicked(e -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             File selectedDirectory = directoryChooser.showDialog(primaryStage);
             outputPath.setText(selectedDirectory.getAbsolutePath());
         });
+        //Перемещение между вариантами матрицы
         generateMatrixRB.setOnMouseClicked(e -> pane.setCenter(generatorPane));
         enterMatrixRB.setOnAction(e -> pane.setCenter(keyboardMatrices));
         readMatrixRB.setOnAction(e -> pane.setCenter(filePane));
 
+        calculate.setOnAction(e -> {
+            if (generateMatrixRB.isSelected()) {
+                int i = generatorPane.getI();
+                Matrix matrix = new Matrix(i);
+                matrix.generateRandomMatrix(0,100);
+                makeCalculation(shulc,gordanGaus,matrix);
+                matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
+                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+            } else if (enterMatrixRB.isSelected()) {
+                Matrix matrix = new Matrix(keyboardMatrices.getMatrix());
+                makeCalculation(shulc,gordanGaus,matrix);
+                matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
+                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+            }else {
+                Matrix matrix = new Matrix(filePane.getMatrixPath());
+                makeCalculation(shulc,gordanGaus,matrix);
+                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+            }
+
+        });
+
+    }
+    private static void makeCalculation(RadioButton shulc, RadioButton gordanGaus,Matrix matrix) {
+
+        if (shulc.isSelected())
+            matrix.methodIteration();
+        else
+            matrix.methodGaussJordan();
     }
 }
+
+
