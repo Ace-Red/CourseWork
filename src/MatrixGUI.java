@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import sun.jvm.hotspot.memory.Generation;
 
 import java.io.File;
 public class MatrixGUI extends Application{
@@ -59,14 +60,26 @@ public class MatrixGUI extends Application{
         final HBox outputFolderHBox = new HBox(new Label("Путь вывода: "), outputPath, chooseFolder);
         outputFolderHBox.setSpacing(10);
         calculatingArea.getChildren().addAll(outputFolderHBox, downHBox, calculate);
-        //
+        //Добавление в сцену ячеек для матрицы
+        final KeyBoardMatrix keyboardMatrices = new KeyBoardMatrix();
+        pane.setCenter(keyboardMatrices);
 
-        //
+        final FilePane filePane = new FilePane();
+        final GenerationPane generatorPane = new GenerationPane();
+        //Сама сцена
         Scene scene = new Scene(pane);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Нахождение обратной матрицы");
         primaryStage.show();
-
+        //Функционал каждой кнопки
+        chooseFolder.setOnMouseClicked(e -> {
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+            File selectedDirectory = directoryChooser.showDialog(primaryStage);
+            outputPath.setText(selectedDirectory.getAbsolutePath());
+        });
+        generateMatrixRB.setOnMouseClicked(e -> pane.setCenter(generatorPane));
+        enterMatrixRB.setOnAction(e -> pane.setCenter(keyboardMatrices));
+        readMatrixRB.setOnAction(e -> pane.setCenter(filePane));
 
     }
 }
