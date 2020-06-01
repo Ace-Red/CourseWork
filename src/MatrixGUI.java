@@ -2,19 +2,16 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import sun.jvm.hotspot.memory.Generation;
+
 
 import java.io.File;
+import java.util.NoSuchElementException;
 
 public class MatrixGUI extends Application {
 
@@ -25,86 +22,196 @@ public class MatrixGUI extends Application {
     @Override
     public void start(Stage primaryStage) {
         BorderPane pane = new BorderPane();
+        pane.setBackground(new Background(new BackgroundFill(Color.ALICEBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
         pane.setPadding(new Insets(10, 10, 10, 10));
-        ToggleGroup howToEnterMatrix = new ToggleGroup();
+        ToggleGroup chooseEnterMatrix = new ToggleGroup();
         //Кнопка генерации
-        RadioButton generateMatrixRB = new RadioButton();
-        generateMatrixRB.setToggleGroup(howToEnterMatrix);
+        RadioButton generateMatrix = new RadioButton();
+        generateMatrix.setToggleGroup(chooseEnterMatrix);
         //Введение матрицы в ячейки
-        RadioButton enterMatrixRB = new RadioButton();
-        enterMatrixRB.setToggleGroup(howToEnterMatrix);
+        RadioButton enterMatrix = new RadioButton();
+        enterMatrix.setToggleGroup(chooseEnterMatrix);
         //Чтение матрицы с файла
-        RadioButton readMatrixRB = new RadioButton();
-        readMatrixRB.setToggleGroup(howToEnterMatrix);
-        enterMatrixRB.setSelected(true);
+        RadioButton readMatrix = new RadioButton();
+        readMatrix.setToggleGroup(chooseEnterMatrix);
+        enterMatrix.setSelected(true);
         //Надписи к кнопкам(вверхнем поле) и отступы
-        final HBox hBox = new HBox(new Label(" - Генерация", generateMatrixRB), new Label(" - Ввод в ячейки", enterMatrixRB), new Label(" - Чтение с файла", readMatrixRB));
+        final HBox hBox = new HBox(new Label(" - Генерация", generateMatrix), new Label(" - Ввод в ячейки", enterMatrix), new Label(" - Чтение с файла", readMatrix));
         hBox.setSpacing(10);
-        pane.setTop(hBox);
+        pane.setLeft(hBox);
         //Место для кнопок упорядоченых сверху-вниз
-        VBox calculatingArea = new VBox();
-        pane.setBottom(calculatingArea);
-        calculatingArea.setSpacing(5);
-        calculatingArea.setAlignment(Pos.CENTER);
-        Button calculate = new Button("Найти обратную матрицу");
+        VBox chooseFileArea = new VBox();
+        pane.setBottom(chooseFileArea);
+        chooseFileArea.setSpacing(5);
+        chooseFileArea.setAlignment(Pos.CENTER);
+        Button start = new Button("Найти обратную матрицу");
         Text outputPath = new Text("Выберете папку для вывода результата");
         Button chooseFolder = new Button("Выбор папки");
         //Кнопки выбора метода нахождения обратной(Жордана-Гаусса,Шульца) и записи результата
-        ToggleGroup matrixMultiplication = new ToggleGroup();
+        ToggleGroup matrixInvertion = new ToggleGroup();
         RadioButton gordanGaus = new RadioButton();
-        gordanGaus.setToggleGroup(matrixMultiplication);
+        gordanGaus.setToggleGroup(matrixInvertion);
         RadioButton shulc = new RadioButton();
-        shulc.setToggleGroup(matrixMultiplication);
+        shulc.setToggleGroup(matrixInvertion);
         shulc.setSelected(true);
-        final HBox downHBox = new HBox(new Label(" - Жордана-Гаусса", gordanGaus), new Label(" - Шульца", shulc));
-        downHBox.setSpacing(10);
+        final VBox leftHBox = new VBox(new Label(" - Жордана-Гаусса", gordanGaus), new Label(" - Шульца", shulc));
+        leftHBox.setSpacing(10);
+        pane.setLeft(leftHBox);
         final HBox outputFolderHBox = new HBox(new Label("Путь вывода: "), outputPath, chooseFolder);
         outputFolderHBox.setSpacing(10);
-        calculatingArea.getChildren().addAll(outputFolderHBox, downHBox, calculate);
+        chooseFileArea.getChildren().addAll(hBox, outputFolderHBox, start);
         //Добавление в сцену ячеек для матрицы
         final KeyBoardMatrix keyboardMatrices = new KeyBoardMatrix();
         pane.setCenter(keyboardMatrices);
         final FilePane filePane = new FilePane();
         final GenerationPane generatorPane = new GenerationPane();
         //Сама сцена
-        Scene scene = new Scene(pane);
+        Scene scene = new Scene(pane, 700, 400);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Нахождение обратной матрицы");
         primaryStage.show();
         //Функционал кнопки выбора папки в который будет занесен результат
         chooseFolder.setOnMouseClicked(e -> {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            File selectedDirectory = directoryChooser.showDialog(primaryStage);
-            outputPath.setText(selectedDirectory.getAbsolutePath());
+            try {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File selectedDirectory = directoryChooser.showDialog(primaryStage);
+                outputPath.setText(selectedDirectory.getAbsolutePath());
+            } catch (NullPointerException ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("!ОШИБКА!");
+                alert.setHeaderText("Некоректно введенные данные!");
+                alert.setContentText("Вы не указали путь к файлу вывода!");
+                alert.showAndWait();
+            }
         });
         //Перемещение между вариантами матрицы
-        generateMatrixRB.setOnMouseClicked(e -> pane.setCenter(generatorPane));
-        enterMatrixRB.setOnAction(e -> pane.setCenter(keyboardMatrices));
-        readMatrixRB.setOnAction(e -> pane.setCenter(filePane));
+        generateMatrix.setOnMouseClicked(e -> pane.setCenter(generatorPane));
+        enterMatrix.setOnAction(e -> pane.setCenter(keyboardMatrices));
+        readMatrix.setOnAction(e -> pane.setCenter(filePane));
 
-        calculate.setOnAction(e -> {
-            if (generateMatrixRB.isSelected()) {
+        start.setOnAction(e -> {
+            if (generateMatrix.isSelected()) {
                 int i = generatorPane.getI();
-                Matrix matrix = new Matrix(i);
-                matrix.generateRandomMatrix(0,100);
-                makeCalculation(shulc,gordanGaus,matrix);
-                matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
-                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
-            } else if (enterMatrixRB.isSelected()) {
+                if (i < 1) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("!ОШИБКА!");
+                    alert.setHeaderText("Размер матрицы недопустим!");
+                    alert.setContentText("Введите коректный размер матрицы!");
+                    alert.showAndWait();
+                } else {
+                    Matrix matrix = new Matrix(i);
+                    if (!outputPath.getText().equals("Выберете папку для вывода результата")) {
+                        matrix.generateRandomMatrix(0, 100);
+                        if (matrix.checkDeterminant()) {
+                            makeCalculation(shulc, gordanGaus, matrix);
+                            if (matrix.checkInverseMatrix()) {
+                                matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
+                                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+                            } else {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("!ОШИБКА!");
+                                alert.setHeaderText("У данной матрицы нет обратной!");
+                                alert.setContentText("Введите матрицу у которой есть обратная!");
+                                alert.showAndWait();
+                            }
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("!ОШИБКА!");
+                            alert.setHeaderText("У данной матрицы нет обратной!");
+                            alert.setContentText("Введите матрицу у которой есть обратная!");
+                            alert.showAndWait();
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("!ОШИБКА!");
+                        alert.setHeaderText("Не выбран путь записи!");
+                        alert.setContentText("Введите путь записи!");
+                        alert.showAndWait();
+                    }
+                }
+            } else if (enterMatrix.isSelected()) {
                 Matrix matrix = new Matrix(keyboardMatrices.getMatrix());
-                makeCalculation(shulc,gordanGaus,matrix);
-                matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
-                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
-            }else {
-                Matrix matrix = new Matrix(filePane.getMatrixPath());
-                makeCalculation(shulc,gordanGaus,matrix);
-                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+                if (!outputPath.getText().equals("Выберете папку для вывода результата")) {
+                    if (matrix.checkDeterminant()) {
+                        makeCalculation(shulc, gordanGaus, matrix);
+                        if (matrix.checkInverseMatrix()) {
+                            matrix.writeMatrix(outputPath.getText() + "/matrix.txt");
+                            matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("!ОШИБКА!");
+                            alert.setHeaderText("У данной матрицы нет обратной!");
+                            alert.setContentText("Введите матрицу у которой есть обратная!");
+                            alert.showAndWait();
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("!ОШИБКА!");
+                        alert.setHeaderText("У данной матрицы нет обратной!");
+                        alert.setContentText("Введите матрицу у которой есть обратная!");
+                        alert.showAndWait();
+                    }
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("!ОШИБКА!");
+                    alert.setHeaderText("Не выбран путь записи!");
+                    alert.setContentText("Введите путь записи!");
+                    alert.showAndWait();
+                }
+            } else {
+                try {
+                    if(!filePane.getMatrixPath().equals("Выбере путь к матрице:")){
+                    Matrix matrix = new Matrix(filePane.getMatrixPath());
+                    if (!outputPath.getText().equals("Выберете папку для вывода результата")) {
+                        if (matrix.checkDeterminant()) {
+                            makeCalculation(shulc, gordanGaus, matrix);
+                            if (matrix.checkInverseMatrix()) {
+                                matrix.writeInverseMatrix(outputPath.getText() + "/matrixInverse.txt");
+                            } else {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("!ОШИБКА!");
+                                alert.setHeaderText("У данной матрицы нет обратной!");
+                                alert.setContentText("Введите матрицу у которой есть обратная!");
+                                alert.showAndWait();
+                            }
+                        } else {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("!ОШИБКА!");
+                            alert.setHeaderText("У данной матрицы нет обратной!");
+                            alert.setContentText("Введите матрицу у которой есть обратная!");
+                            alert.showAndWait();
+                        }}
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("!ОШИБКА!");
+                        alert.setHeaderText("Не выбран путь записи!");
+                        alert.setContentText("Введите путь записи!");
+                        alert.showAndWait();
+                    }}
+                    else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("!ОШИБКА!");
+                        alert.setHeaderText("Не выбран файл чтения!");
+                        alert.setContentText("Введите файл чтения!");
+                        alert.showAndWait();
+                    }
+                    } catch(NoSuchElementException ex){
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("!ОШИБКА!");
+                        alert.setHeaderText("Некоректно введенные данные!");
+                        alert.setContentText("В данном файле не содержиться матрицы!\nПрограмма не может продолжить работу!");
+                        alert.showAndWait();
+                    }
+
             }
+            pane.setRight(new VBox(new Text("Добавлений: " + Matrix.getAddingOperation() + ";"), new Text("Умножений: " + Matrix.getMultiplicationOperation() + ";"), new Text("Отниманий: " + Matrix.getMinusOperation() + ";"), new Text("Делений: " + Matrix.getDevisionOperation() + ";")));
+            Matrix.clearOperation();
 
         });
 
     }
-    private static void makeCalculation(RadioButton shulc, RadioButton gordanGaus,Matrix matrix) {
+
+    private static void makeCalculation(RadioButton shulc, RadioButton gordanGaus, Matrix matrix) {
 
         if (shulc.isSelected())
             matrix.methodIteration();
@@ -112,5 +219,3 @@ public class MatrixGUI extends Application {
             matrix.methodGaussJordan();
     }
 }
-
-

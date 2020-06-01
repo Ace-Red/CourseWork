@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="CourseWorkInverseMatrix:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/CourseWorkInverseMatrix_jar</output-path>
+    <root id="archive" name="CourseWorkInverseMatrix.jar">
+      <element id="module-output" name="CourseWorkInverseMatrix" />
+    </root>
+  </artifact>
+</component>

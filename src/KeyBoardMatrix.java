@@ -7,7 +7,7 @@ public class KeyBoardMatrix extends HBox {
         setSpacing(10);
     }
 
-    public int[][] getMatrix() {
+    public double[][] getMatrix() {
         return matrix.getMatrix();
     }
 }

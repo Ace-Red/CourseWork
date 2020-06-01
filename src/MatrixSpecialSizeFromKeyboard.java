@@ -12,10 +12,10 @@ public class MatrixSpecialSizeFromKeyboard extends BorderPane {
         comboBoxes.setAlignment(Pos.CENTER);
         comboBoxes.setSpacing(5);
         ComboBox<Integer> row = new ComboBox<>();
-        for (int i = 1; i <= 15; i++)
+        for (int i = 1; i <= 64; i++)
             row.getItems().add(i);
         row.setValue(5);
-        comboBoxes.getChildren().addAll(new Label("Row: "), row);
+        comboBoxes.getChildren().addAll(new Label("Рядков: "), row);
 
         resetCenter(row);
 
@@ -27,7 +27,7 @@ public class MatrixSpecialSizeFromKeyboard extends BorderPane {
         setCenter(new MatrixFromKeyboard(row.getValue()));
     }
 
-    public int[][] getMatrix() {
+    public double[][] getMatrix() {
         return ((MatrixFromKeyboard) getCenter()).getMatrix();
     }
 }
